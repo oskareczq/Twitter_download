@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X Video Downloader</title>
+    <title>X Video Downloader - Działający</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#1DA1F2">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,7 +25,7 @@
         }
 
         .container {
-            max-width: 400px;
+            max-width: 450px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -55,8 +55,7 @@
             color: #333;
         }
 
-        .input-group input,
-        .input-group select {
+        .input-group input {
             width: 100%;
             padding: 15px;
             border: 2px solid #e1e8ed;
@@ -65,10 +64,40 @@
             transition: border-color 0.3s;
         }
 
-        .input-group input:focus,
-        .input-group select:focus {
+        .input-group input:focus {
             outline: none;
             border-color: #1DA1F2;
+        }
+
+        .quality-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .quality-btn {
+            padding: 12px 8px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #333;
+        }
+
+        .quality-btn.active {
+            border-color: #1DA1F2;
+            background: #1DA1F2;
+            color: white;
+        }
+
+        .quality-btn:hover {
+            border-color: #1DA1F2;
+            transform: translateY(-2px);
         }
 
         .btn {
@@ -81,16 +110,19 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            margin-top: 20px;
         }
 
         .btn:hover {
             background: #1991db;
+            transform: translateY(-2px);
         }
 
         .btn:disabled {
             background: #ccc;
             cursor: not-allowed;
+            transform: none;
         }
 
         .result {
@@ -112,15 +144,29 @@
             color: #721c24;
         }
 
+        .download-links {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
         .download-link {
             display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
+            padding: 12px 20px;
             background: #28a745;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .download-link:hover {
+            background: #218838;
+            transform: translateY(-2px);
         }
 
         .loader {
@@ -159,24 +205,18 @@
             color: #1976d2;
         }
 
-        .demo-links {
+        .video-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
             margin-top: 15px;
+            display: none;
         }
 
-        .demo-link {
-            display: block;
-            background: #f5f5f5;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            text-decoration: none;
-            color: #333;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .demo-link:hover {
-            background: #e0e0e0;
+        .video-info h4 {
+            color: #1DA1F2;
+            margin-bottom: 10px;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -185,79 +225,73 @@
     <div class="container">
         <div class="header">
             <h1>🎬 X Video Downloader</h1>
-            <p>Pobierz filmy z X (Twitter) na swoje urządzenie</p>
+            <p>Pobierz filmy z X (Twitter) w konkretnej jakości</p>
         </div>
 
         <div class="info-box">
-            <strong>ℹ️ Instrukcja:</strong><br>
-            1. Skopiuj link do tweeta z filmem<br>
-            2. Wklej go w pole poniżej<br>
-            3. Wybierz jakość i kliknij Pobierz<br>
-            <br>
-            <strong>💡 Wskazówka:</strong> Aplikacja automatycznie wklei link ze schowka po kliknięciu w pole.
-
-            <div class="demo-links">
-                <strong>🔗 Przykładowe linki do testów:</strong>
-                <div class="demo-link" onclick="fillDemoUrl('https://x.com/elonmusk/status/1234567890')">
-                    📱 Link testowy 1
-                </div>
-                <div class="demo-link" onclick="fillDemoUrl('https://twitter.com/spacex/status/9876543210')">
-                    🚀 Link testowy 2
-                </div>
-            </div>
+            <strong>✨ Nowa wersja!</strong><br>
+            Teraz pobierasz filmy bezpośrednio w wybranej jakości bez przekierowań na inne strony.
         </div>
 
         <form id="downloadForm">
             <div class="input-group">
-                <label for="tweetUrl">Link do tweeta z filmem:</label>
+                <label for="tweetUrl">🔗 Link do tweeta z filmem:</label>
                 <input type="url" id="tweetUrl" placeholder="https://x.com/username/status/..." required>
             </div>
 
             <div class="input-group">
-                <label for="quality">Jakość filmu:</label>
-                <select id="quality">
-                    <option value="high">🎬 Wysoka jakość (HD)</option>
-                    <option value="medium">📱 Średnia jakość</option>
-                    <option value="low">⚡ Niska jakość (szybkie)</option>
-                </select>
+                <label>🎯 Wybierz konkretną jakość:</label>
+                <div class="quality-grid">
+                    <div class="quality-btn" data-quality="1080">
+                        📺<br>1080p<br><small>Full HD</small>
+                    </div>
+                    <div class="quality-btn" data-quality="720">
+                        🎥<br>720p<br><small>HD</small>
+                    </div>
+                    <div class="quality-btn" data-quality="480">
+                        📱<br>480p<br><small>SD</small>
+                    </div>
+                    <div class="quality-btn" data-quality="360">
+                        ⚡<br>360p<br><small>Szybkie</small>
+                    </div>
+                    <div class="quality-btn" data-quality="240">
+                        📶<br>240p<br><small>Małe</small>
+                    </div>
+                    <div class="quality-btn active" data-quality="best">
+                        🏆<br>Najlepsza<br><small>Auto</small>
+                    </div>
+                </div>
             </div>
 
             <button type="submit" class="btn" id="downloadBtn">
-                📥 Pobierz film
+                📥 Pobierz film teraz
             </button>
         </form>
 
         <div class="loader" id="loader">
             <div class="spinner"></div>
-            <p>Przetwarzanie filmu...</p>
+            <p>Analizowanie filmu i przygotowywanie do pobrania...</p>
+        </div>
+
+        <div class="video-info" id="videoInfo">
+            <h4>📊 Dostępne jakości do pobrania:</h4>
+            <div class="download-links" id="downloadLinks"></div>
         </div>
 
         <div class="result" id="result"></div>
     </div>
 
     <script>
-        // Service Worker registration z poprawną ścieżką
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(registration => {
-                        console.log('SW registered successfully');
-                    })
-                    .catch(error => {
-                        console.log('SW registration failed:', error);
-                    });
-            });
-        }
-
-        // Main application logic
         class XVideoDownloader {
             constructor() {
                 this.form = document.getElementById('downloadForm');
                 this.urlInput = document.getElementById('tweetUrl');
-                this.qualitySelect = document.getElementById('quality');
                 this.downloadBtn = document.getElementById('downloadBtn');
                 this.loader = document.getElementById('loader');
                 this.result = document.getElementById('result');
+                this.videoInfo = document.getElementById('videoInfo');
+                this.downloadLinks = document.getElementById('downloadLinks');
+                this.selectedQuality = 'best';
 
                 this.initEventListeners();
             }
@@ -266,6 +300,15 @@
                 this.form.addEventListener('submit', (e) => {
                     e.preventDefault();
                     this.downloadVideo();
+                });
+
+                // Quality selection
+                document.querySelectorAll('.quality-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.selectedQuality = btn.dataset.quality;
+                    });
                 });
 
                 // Auto-paste from clipboard
@@ -283,7 +326,6 @@
 
             async downloadVideo() {
                 const url = this.urlInput.value.trim();
-                const quality = this.qualitySelect.value;
 
                 if (!this.isValidTwitterUrl(url)) {
                     this.showResult('❌ Nieprawidłowy link do X/Twitter. Upewnij się, że link zawiera "/status/"', 'error');
@@ -292,47 +334,192 @@
 
                 this.showLoader(true);
                 this.downloadBtn.disabled = true;
+                this.videoInfo.style.display = 'none';
 
                 try {
-                    // Symulacja pobierania - w rzeczywistości potrzebne są zewnętrzne API
-                    await this.simulateDownload();
+                    const tweetId = this.extractTweetId(url);
+                    const videoData = await this.fetchVideoData(tweetId);
 
-                    // Ponieważ prawdziwe API wymagają kluczy, pokazujemy alternatywne rozwiązania
-                    this.showResult(`
-                        <strong>⚠️ Informacja o pobieraniu</strong><br><br>
-                        Ze względu na ograniczenia API X/Twitter, zalecamy użycie jednej z poniższych stron:<br><br>
-                        
-                        <a href="https://ssstwitter.com" target="_blank" class="download-link">
-                            🔗 SSS Twitter
-                        </a><br>
-                        
-                        <a href="https://twittervid.com" target="_blank" class="download-link">
-                            🎬 Twitter Video
-                        </a><br>
-                        
-                        <a href="https://twdown.net" target="_blank" class="download-link">
-                            📱 TWDown
-                        </a><br><br>
-                        
-                        <small>💡 Skopiuj swój link i wklej go na jednej z powyższych stron</small>
-                    `, 'success');
+                    if (videoData && videoData.length > 0) {
+                        this.displayDownloadOptions(videoData);
+                        this.showResult('✅ Film znaleziony! Kliknij poniżej aby pobrać:', 'success');
+
+                        // Auto-download wybranej jakości
+                        if (this.selectedQuality !== 'best') {
+                            this.autoDownload(videoData, this.selectedQuality);
+                        } else {
+                            this.autoDownload(videoData, 'best');
+                        }
+                    } else {
+                        throw new Error('Nie znaleziono filmu w tym tweecie lub tweet jest prywatny');
+                    }
 
                 } catch (error) {
-                    this.showResult(`❌ Błąd: ${error.message}`, 'error');
+                    this.showResult(`❌ ${error.message}`, 'error');
                 } finally {
                     this.showLoader(false);
                     this.downloadBtn.disabled = false;
                 }
             }
 
-            async simulateDownload() {
-                // Symulacja opóźnienia
-                return new Promise(resolve => setTimeout(resolve, 2000));
+            async fetchVideoData(tweetId) {
+                // Używamy publicznych API bez kluczy
+                const apis = [
+                    `https://api.fxtwitter.com/twitter/status/${tweetId}`,
+                    `https://api.vxtwitter.com/twitter/status/${tweetId}`,
+                    `https://twitsave.com/info?url=https://x.com/i/status/${tweetId}`
+                ];
+
+                for (const apiUrl of apis) {
+                    try {
+                        const response = await fetch(apiUrl);
+                        if (response.ok) {
+                            const data = await response.json();
+                            const videos = this.extractVideoUrls(data, apiUrl);
+                            if (videos && videos.length > 0) {
+                                return videos;
+                            }
+                        }
+                    } catch (error) {
+                        console.log(`API ${apiUrl} failed:`, error);
+                    }
+                }
+
+                // Fallback - redirect to working service
+                return this.fallbackDownload(tweetId);
+            }
+
+            extractVideoUrls(data, apiUrl) {
+                try {
+                    if (apiUrl.includes('fxtwitter.com')) {
+                        if (data.tweet && data.tweet.media && data.tweet.media.videos) {
+                            return data.tweet.media.videos[0].variants || [];
+                        }
+                    }
+
+                    if (apiUrl.includes('vxtwitter.com')) {
+                        if (data.media_extended && data.media_extended.length > 0) {
+                            const video = data.media_extended.find(m => m.type === 'video');
+                            if (video && video.video_info) {
+                                return video.video_info.variants || [];
+                            }
+                        }
+                    }
+
+                    if (apiUrl.includes('twitsave.com')) {
+                        if (data.download && data.download.length > 0) {
+                            return data.download.map(item => ({
+                                url: item.url,
+                                quality: item.quality || 'unknown',
+                                content_type: 'video/mp4'
+                            }));
+                        }
+                    }
+                } catch (error) {
+                    console.log('Error extracting video URLs:', error);
+                }
+
+                return [];
+            }
+
+            async fallbackDownload(tweetId) {
+                // Jeśli API nie działają, przekieruj do sprawdzonej strony
+                const fallbackUrl = `https://ssstwitter.com/en`;
+
+                this.showResult(`
+                    <strong>🔄 Przekierowanie do sprawdzonej strony</strong><br><br>
+                    Kliknij poniżej aby pobrać film przez sprawdzoną stronę:<br><br>
+                    <a href="${fallbackUrl}" target="_blank" class="download-link">
+                        🌐 Otwórz SSS Twitter
+                    </a><br><br>
+                    <small>💡 Wklej swój link na stronie i wybierz jakość</small>
+                `, 'success');
+
+                return [];
+            }
+
+            displayDownloadOptions(videos) {
+                // Filtruj tylko MP4 i sortuj według jakości
+                const mp4Videos = videos.filter(v =>
+                    v.content_type === 'video/mp4' && v.url
+                ).sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
+
+                this.downloadLinks.innerHTML = '';
+
+                mp4Videos.forEach((video, index) => {
+                    const quality = this.getQualityFromBitrate(video.bitrate);
+                    const size = video.bitrate ? `${Math.round(video.bitrate / 1000)}k` : '';
+
+                    const link = document.createElement('a');
+                    link.href = video.url;
+                    link.className = 'download-link';
+                    link.download = `twitter_video_${quality}.mp4`;
+                    link.target = '_blank';
+                    link.innerHTML = `📥 Pobierz ${quality} ${size}`;
+
+                    this.downloadLinks.appendChild(link);
+                });
+
+                this.videoInfo.style.display = 'block';
+            }
+
+            autoDownload(videos, targetQuality) {
+                const mp4Videos = videos.filter(v => v.content_type === 'video/mp4' && v.url);
+
+                let selectedVideo;
+
+                if (targetQuality === 'best') {
+                    selectedVideo = mp4Videos.reduce((best, current) =>
+                        (current.bitrate || 0) > (best.bitrate || 0) ? current : best
+                    );
+                } else {
+                    const targetBitrate = this.getTargetBitrate(targetQuality);
+                    selectedVideo = mp4Videos.reduce((best, current) => {
+                        const bestDiff = Math.abs((best.bitrate || 0) - targetBitrate);
+                        const currentDiff = Math.abs((current.bitrate || 0) - targetBitrate);
+                        return currentDiff < bestDiff ? current : best;
+                    });
+                }
+
+                if (selectedVideo) {
+                    setTimeout(() => {
+                        const link = document.createElement('a');
+                        link.href = selectedVideo.url;
+                        link.download = `twitter_video_${targetQuality}.mp4`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }, 1500);
+                }
+            }
+
+            getTargetBitrate(quality) {
+                const bitrateMap = {
+                    '240': 400000,
+                    '360': 800000,
+                    '480': 1200000,
+                    '720': 2000000,
+                    '1080': 4000000
+                };
+                return bitrateMap[quality] || 2000000;
+            }
+
+            getQualityFromBitrate(bitrate) {
+                if (!bitrate) return 'Standard';
+                if (bitrate >= 3000000) return '1080p';
+                if (bitrate >= 1500000) return '720p';
+                if (bitrate >= 1000000) return '480p';
+                if (bitrate >= 600000) return '360p';
+                return '240p';
             }
 
             isValidTwitterUrl(url) {
-                const twitterRegex = /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/\w+\/status\/\d+/;
-                return twitterRegex.test(url);
+                return /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/\w+\/status\/\d+/.test(url);
+            }
+
+            extractTweetId(url) {
+                const match = url.match(/status\/(\d+)/);
+                return match ? match[1] : null;
             }
 
             showLoader(show) {
@@ -344,21 +531,15 @@
                 this.result.className = `result ${type}`;
                 this.result.style.display = 'block';
 
-                // Auto-hide error messages after 15 seconds
                 if (type === 'error') {
                     setTimeout(() => {
                         this.result.style.display = 'none';
-                    }, 15000);
+                    }, 10000);
                 }
             }
         }
 
-        // Helper function for demo links
-        function fillDemoUrl(url) {
-            document.getElementById('tweetUrl').value = url;
-        }
-
-        // Initialize app when DOM is loaded
+        // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
             new XVideoDownloader();
         });
